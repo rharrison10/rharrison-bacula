@@ -12,6 +12,8 @@
 #   The director's password the client is connecting to.
 # [*director_server*]
 #   The FQDN of the director server the client will connect to.
+# [*pool*]
+#   The pool used by the client for backups
 # [*fileset*]
 #   The file set used by the client for backups
 # [*storage_server*]
@@ -24,6 +26,7 @@
 #     db_backend        => 'mysql',
 #     director_password => 'directorpassword',
 #     director_server   => 'bacula.example.com',
+#     pool              => 'otherpool',
 #     fileset           => 'Basic:noHome',
 #     storage_server    => 'bacula.example.com',
 #   }
@@ -52,7 +55,8 @@ define bacula::client::config (
   $director_password = '',
   $director_server   = undef,
   $fileset           = 'Basic:noHome',
-  $storage_server    = undef
+  $pool              = undef,
+  $storage_server    = undef,
 ) {
   include bacula::params
 
@@ -114,6 +118,15 @@ define bacula::client::config (
 
   if !is_domain_name($storage_server_real) {
     fail "storage_server=${storage_server_real} must be a fully qualified domain name"
+  }
+
+  case $pool {
+    undef   : { 
+      $pool_real = "${storage_server_real}:pool:default"
+    }
+    default : {
+      $pool_real = $pool
+    }
   }
 
   file { "/etc/bacula/bacula-dir.d/${name}.conf":
