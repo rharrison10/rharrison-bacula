@@ -7,6 +7,8 @@
 # [*ensure*]
 #   Ensure the file is present or absent.  The only valid values are +file+ or
 #   +absent+. Defaults to +file+.
+# [*director_server*]
+#   WHere this config will be deployed, if using stored configs.
 # [*content*]
 #   String containing the content for the configuration file.  Usually supplied
 #   with a template.
@@ -24,6 +26,7 @@
 #
 define bacula::director::custom_config (
   $ensure   = 'file',
+  $director_server = undef,
   $content  = undef,
   $source   = undef
 ) {
@@ -39,8 +42,8 @@ define bacula::director::custom_config (
 
   file { "/etc/bacula/bacula-dir.d/custom-${name}.conf":
     ensure  => file,
-    owner   => 'root',
-    group   => 'root',
+    owner   => 'bacula',
+    group   => 'bacula',
     mode    => '0640',
     content => $content,
     source  => $source,
