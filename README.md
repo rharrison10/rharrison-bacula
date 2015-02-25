@@ -350,6 +350,16 @@ parameter on the director node. Each will need to know the parameters of the
 
 ## `bacula::client::config` Parameters
 
+### ensure
+
+If the configuration should be deployed to the director. `file` (default),
+`present`, or `absent`.
+
+### backup_enable
+
+If the backup job for the client should be enabled `'yes'` (default)
+or `'no'`.
+
 ### client_schedule
 
 The schedule for backups to be performed.
@@ -390,6 +400,18 @@ The pool to use for incremental backups. Setting this to `false` will prevent
 configuring a specific pool for incremental backups. Defaults to
 `"${pool}.incremental"`.
 
+### priority
+
+This directive permits you to control the order in which your jobs will be run
+by specifying a positive non-zero number. The higher the number, the lower the
+job priority. Assuming you are not running concurrent jobs, all queued jobs of
+priority `1` will run before queued jobs of priority `2` and so on, regardless
+of the original scheduling order.  The priority only affects waiting jobs that
+are queued to run, not jobs that are already running. If one or more jobs of
+priority `2` are already running, and a new job is scheduled with priority `1`,
+the currently running priority `2` jobs must complete before the priority 1 job
+is run, unless `Allow Mixed Priority` is set. The default priority is `10`.
+
 ### rerun_failed_levels
 
 If this directive is set to `'yes'` (default `'no'`), and Bacula detects that a
@@ -405,6 +427,11 @@ normally, which includes any running job of the same name (you need to ensure
 that two jobs of the same name do not run simultaneously); secondly, the
 `Ignore FileSet Changes` directive is not considered when checking for failed
 levels, which means that any FileSet change will trigger a rerun.
+
+### restore_enable
+
+If the restore job for the client should be enabled `'yes'` (default)
+or `'no'`.
 
 ### restore_where
 
