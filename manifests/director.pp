@@ -238,16 +238,15 @@ class bacula::director (
     require    => $service_require,
   }
 
-  if $::osfamily == 'Debian' {
-    $bconsole = '/usr/bin/bconsole'
-  } else {
-    $bconsole = '/usr/sbin/bconsole'
+  $bconsole_cmd = $::osfamily ? {
+    'Debian' => '/usr/bin/bconsole',
+    default  => '/usr/sbin/bconsole',
   }
 
   # Instead of restarting the <code>bacula-dir</code> service which could interrupt running jobs tell the director to reload its
   # configuration.
   exec { 'bacula-dir reload':
-    command     => "/bin/echo reload | ${bconsole}",
+    command     => "/bin/echo reload | ${bconsole_cmd}",
     logoutput   => on_failure,
     refreshonly => true,
     timeout     => 10,
