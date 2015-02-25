@@ -72,4 +72,16 @@ class bacula::params {
     /(Debian|Ubuntu)/ => 'bacula-sd-sqlite',
     default           => 'bacula-storage-sqlite',
   }
+
+  case $::operatingsystem {
+    /(Ubuntu)/: {
+      $scripts_dir = '/etc/bacula/scripts'
+      $catalog_dir = '/var/lib/bacula'
+    }
+    default: {
+      $scripts_dir = '/usr/libexec/bacula'
+      $catalog_dir = '/var/spool/bacula'
+    }
+  }
+
 }

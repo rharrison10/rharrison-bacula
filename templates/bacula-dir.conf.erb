@@ -296,7 +296,7 @@ FileSet {
       Signature   = SHA1
       Compression = GZIP
     }
-    File = "/var/spool/bacula/bacula.sql"
+    File = "<%= @catalog_dir -%>/bacula.sql"
   }
 }
 
@@ -391,9 +391,9 @@ Job {
   Messages = "<%= director_server_real -%>:messages:standard"
   Pool = "<%= storage_server_real -%>:pool:catalog"
   # This creates an ASCII copy of the catalog
-  RunBeforeJob = "/usr/libexec/bacula/make_catalog_backup.pl <%= director_server_real -%>:<%= db_backend -%>"
+  RunBeforeJob = "<%= @scripts_dir -%>/make_catalog_backup.pl <%= director_server_real -%>:<%= db_backend -%>"
   # This deletes the copy of the catalog
-  RunAfterJob  = "/usr/libexec/bacula/delete_catalog_backup"
+  RunAfterJob  = "<%= @scripts_dir -%>/delete_catalog_backup"
   Write Bootstrap = "/var/lib/bacula/BackupCatalog.bsr"
   # Run after main backup
   Priority = 50

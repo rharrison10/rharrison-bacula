@@ -93,18 +93,18 @@ class bacula::params::validate (
     validate_re($volume_autoprune_incr, '^(Yes|yes|No|no)$')
 
     # Validate mail_to variables are email address
-    if $mail_to != undef {
+    if $mail_to != '' {
       validate_re($mail_to, '^[\w-]+@([\w-]+\.)+[\w-]+$')
-    } elsif $mail_to == undef and $mail_to_on_error == undef {
+    } elsif $mail_to == '' and $mail_to_on_error == '' {
       validate_re($::bacula::params::mail_to_default, '^[\w-]+@([\w-]+\.)+[\w-]+$')
     }
-    if $mail_to_daemon != undef {
+    if $mail_to_daemon != '' {
       validate_re($mail_to_daemon, '^[\w-]+@([\w-]+\.)+[\w-]+$')
     }
-    if $mail_to_on_error != undef {
+    if $mail_to_on_error != '' {
       validate_re($mail_to_on_error, '^[\w-]+@([\w-]+\.)+[\w-]+$')
     }
-    if $mail_to_operator != undef {
+    if $mail_to_operator != '' {
       validate_re($mail_to_operator, '^[\w-]+@([\w-]+\.)+[\w-]+$')
     }
   }
@@ -168,7 +168,7 @@ class bacula::params::validate (
 
   validate_absolute_path($storage_default_mount)
 
-  if $plugin_dir != undef {
+  if $plugin_dir != '' {
     validate_absolute_path($plugin_dir)
   }
 

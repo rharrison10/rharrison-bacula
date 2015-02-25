@@ -69,6 +69,9 @@ class bacula::director (
 ) {
   include ::bacula::params
 
+  $scripts_dir = $::bacula::params::scripts_dir
+  $catalog_dir = $::bacula::params::catalog_dir
+
   $director_server_real = $director_server ? {
     undef   => $::bacula::params::director_server_default,
     default => $director_server,
