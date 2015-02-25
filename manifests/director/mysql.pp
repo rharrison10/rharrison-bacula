@@ -63,7 +63,7 @@ class bacula::director::mysql (
     if $is_percona {
       percona::database { $db_database:
         ensure   => present,
-        notify    => Exec['make_db_tables'],
+        notify   => Exec['make_db_tables'],
       }
 
       percona::rights { "${db_user}@${db_user_host}/${db_database}":
