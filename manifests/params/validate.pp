@@ -109,10 +109,10 @@ class bacula::params::validate (
     }
   }
 
-  # Validate the director and storage servers given are fully qualified
-  # domain names
-  validate_re($director_server, '^[a-z0-9_-]+(\.[a-z0-9_-]+){2,}$')
-  validate_re($storage_server, '^[a-z0-9_-]+(\.[a-z0-9_-]+){2,}$')
+  # Validate the director and storage servers given are valid
+  # hostnames
+  validate_re($director_server, '^[a-z0-9_-]+(\.[a-z0-9_-]+)*$')
+  validate_re($storage_server, '^[a-z0-9_-]+(\.[a-z0-9_-]+)*$')
 
   # Validate server values aren't empty
   if empty($director_server) {

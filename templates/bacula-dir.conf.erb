@@ -6,7 +6,7 @@
 # Define the name of this director so other clients can
 # connect to it and work with our system
 Director {
-  Name = "<%= @director_server_real -%>:director"
+  Name = "<%= @director_server_real -%><%= @director_name_suffix %>"
   Query File = "/etc/bacula/scripts/query.sql"
   Working Directory = "/var/lib/bacula"
   PID Directory = "/var/run/bacula"
@@ -61,7 +61,7 @@ Messages {
   # WARNING! the following will create a file that you must cycle from
   #          time to time as it will grow indefinitely. However, it will
   #          also keep all your messages if they scroll off the console.
-  Append = "/var/log/bacula/<%= @director_server_real -%>:director.log" = all, !skipped
+  Append = "/var/log/bacula/<%= @director_server_real -%><%= @director_name_suffix %>.log" = all, !skipped
   Catalog = all
 }
 
@@ -71,7 +71,7 @@ Messages {
   Mail Command = "/usr/sbin/bsmtp -h localhost -f bacula@<%= scope.lookupvar('::fqdn') -%> -s \"Bacula Notice (from Director %d)\" %r"
   Mail = <%= @mail_to_daemon_real -%> = all, !skipped
   Console = all, !skipped, !saved
-  Append = "/var/log/bacula/<%= @director_server_real -%>:director.log" = all, !skipped
+  Append = "/var/log/bacula/<%= @director_server_real -%><%= @director_name_suffix %>.log" = all, !skipped
 }
 
 <% if @use_console -%>

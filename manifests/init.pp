@@ -34,6 +34,8 @@
 #   The director's password
 # [*director_server*]
 #   The FQDN of the bacula director
+# [*director_name_suffix*]
+#   The second part used in director name
 # [*director_template*]
 #   The ERB template to use for configuring the director instead of the one
 #   included with the module
@@ -197,6 +199,7 @@ class bacula (
   $db_user_host          = undef,
   $director_password     = '',
   $director_server       = undef,
+  $director_name_suffix  = ':director',
   $director_template     = undef,
   $is_client             = true,
   $is_director           = false,
@@ -331,6 +334,7 @@ class bacula (
       dir_template          => $director_template,
       director_password     => $director_password,
       director_server       => $director_server_real,
+      director_name_suffix  => $director_name_suffix,
       mail_to               => $mail_to,
       mail_to_daemon        => $mail_to_daemon,
       mail_to_on_error      => $mail_to_on_error,
@@ -373,6 +377,7 @@ class bacula (
       db_backend            => $db_backend,
       director_password     => $director_password,
       director_server       => $director_server_real,
+      director_name_suffix  => $director_name_suffix,
       plugin_dir            => $plugin_dir,
       storage_default_mount => $storage_default_mount,
       storage_server        => $storage_server_real,
@@ -390,32 +395,34 @@ class bacula (
 
   if $is_client {
     class { '::bacula::client':
-      director_server   => $director_server_real,
-      director_password => $director_password,
-      plugin_dir        => $plugin_dir,
-      tls_allowed_cn    => $tls_allowed_cn,
-      tls_ca_cert       => $tls_ca_cert,
-      tls_ca_cert_dir   => $tls_ca_cert_dir,
-      tls_cert          => $tls_cert,
-      tls_key           => $tls_key,
-      tls_require       => $tls_require,
-      tls_verify_peer   => $tls_verify_peer,
-      use_tls           => $use_tls,
+      director_server      => $director_server_real,
+      director_password    => $director_password,
+      director_name_suffix => $director_name_suffix,
+      plugin_dir           => $plugin_dir,
+      tls_allowed_cn       => $tls_allowed_cn,
+      tls_ca_cert          => $tls_ca_cert,
+      tls_ca_cert_dir      => $tls_ca_cert_dir,
+      tls_cert             => $tls_cert,
+      tls_key              => $tls_key,
+      tls_require          => $tls_require,
+      tls_verify_peer      => $tls_verify_peer,
+      use_tls              => $use_tls,
     }
   }
 
   if $manage_console_real {
     class { '::bacula::console':
-      console_template  => $console_template,
-      director_password => $director_password,
-      director_server   => $director_server_real,
-      tls_ca_cert       => $tls_ca_cert,
-      tls_ca_cert_dir   => $tls_ca_cert_dir,
-      tls_cert          => $tls_cert,
-      tls_key           => $tls_key,
-      tls_require       => $tls_require,
-      tls_verify_peer   => $tls_verify_peer,
-      use_tls           => $use_tls,
+      console_template     => $console_template,
+      director_password    => $director_password,
+      director_server      => $director_server_real,
+      director_name_suffix => $director_name_suffix,
+      tls_ca_cert          => $tls_ca_cert,
+      tls_ca_cert_dir      => $tls_ca_cert_dir,
+      tls_cert             => $tls_cert,
+      tls_key              => $tls_key,
+      tls_require          => $tls_require,
+      tls_verify_peer      => $tls_verify_peer,
+      use_tls              => $use_tls,
     }
   }
 
