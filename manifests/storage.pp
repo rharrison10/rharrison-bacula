@@ -37,6 +37,7 @@ class bacula::storage (
   $db_backend            = 'sqlite',
   $director_password     = '',
   $director_server       = undef,
+  $director_name_suffix  = ':director'
   $plugin_dir            = undef,
   $storage_default_mount = '/mnt/bacula',
   $storage_server        = undef,

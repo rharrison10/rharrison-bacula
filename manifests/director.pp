@@ -39,6 +39,7 @@ class bacula::director (
   $dir_template          = 'bacula/bacula-dir.conf.erb',
   $director_password     = '',
   $director_server       = undef,
+  $director_name_suffix  = ':director'
   $mail_to               = undef,
   $mail_to_daemon        = undef,
   $mail_to_on_error      = undef,

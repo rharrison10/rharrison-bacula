@@ -2,12 +2,12 @@
 #
 # Bacula Storage Daemon Configuration
 #   for <%= @storage_server_real %>
-#   via <%= @director_server_real -%>:director (<%= @director_server_real -%>)
+#   via <%= @director_server_real -%><%= @director_name_suffix %> (<%= @director_server_real -%>)
 
 # Configure the Director which will manage this Storage Daemon, and the
 # Director through which we'll send our messages (will be the same) one.
 Director {
-  Name = "<%= @director_server_real -%>:director"
+  Name = "<%= @director_server_real -%><%= @director_name_suffix %>"
   Password = "<%= @director_password -%>"
 <% if @use_tls -%>
   TLS Enable = yes
@@ -31,7 +31,7 @@ Director {
 
 Messages {
   Name = "<%= @storage_server_real -%>:messages:standard"
-  Director = "<%= @director_server_real -%>:director" = all
+  Director = "<%= @director_server_real -%><%= @director_name_suffix %>" = all
 }
 
 # Configure the basic details for the Storage Daemon on this server

@@ -31,17 +31,18 @@
 # limitations under the License.
 #
 class bacula::client (
-  $director_password = '',
-  $director_server   = undef,
-  $plugin_dir        = undef,
-  $tls_allowed_cn    = [],
-  $tls_ca_cert       = undef,
-  $tls_ca_cert_dir   = undef,
-  $tls_cert          = undef,
-  $tls_key           = undef,
-  $tls_require       = 'yes',
-  $tls_verify_peer   = 'yes',
-  $use_tls           = false
+  $director_password    = '',
+  $director_server      = undef,
+  $director_name_suffix = ':director',
+  $plugin_dir           = undef,
+  $tls_allowed_cn       = [],
+  $tls_ca_cert          = undef,
+  $tls_ca_cert_dir      = undef,
+  $tls_cert             = undef,
+  $tls_key              = undef,
+  $tls_require          = 'yes',
+  $tls_verify_peer      = 'yes',
+  $use_tls              = false
 ) {
   include ::bacula::params
 
