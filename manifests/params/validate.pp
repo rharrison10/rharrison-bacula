@@ -47,7 +47,7 @@ class bacula::params::validate (
   $manage_db             = '',
   $manage_db_tables      = '',
   $manage_logwatch       = '',
-  $plugin_dir            = '',
+  $plugin_dir            = undef,
   $storage_default_mount = '',
   $storage_server        = '',
   $tls_allowed_cn        = '',
