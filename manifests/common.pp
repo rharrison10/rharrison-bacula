@@ -86,16 +86,23 @@ class bacula::common (
     }
   }
 
-  # Specify the user and group are present before we create files.
-  group { 'bacula':
-    ensure  => present,
-    require => Package[$require_package],
-  }
+  # Specify the user and group are present before we create files. 
+  case $operatingsystem {
+    # disable user/group creation on windows
+    windows: {}
 
-  user { 'bacula':
-    ensure  => present,
-    gid     => 'bacula',
-    require => Group['bacula'],
+    default: {
+       group { 'bacula':
+         ensure  => present,
+         require => Package[$require_package]
+       }
+
+       user { 'bacula':
+         ensure  => present,
+         gid     => 'bacula',
+         require => Group['bacula'],
+       }
+    }
   }
 
   $config_dir_source = $manage_config_dir ? {
@@ -104,10 +111,14 @@ class bacula::common (
   }
 
   file { '/etc/bacula':
+    name    => $operatingsystem ? {
+      windows  => 'C:/ProgramData/bacula',
+      default  => '/etc/bacula',
+    },
     ensure  => directory,
-    owner   => 'bacula',
-    group   => 'bacula',
-    mode    => '0750',
+    owner   => $operatingsystem ? { windows => 'Administratoren', default => 'bacula'},
+    group   => $operatingsystem ? { windows => 'Administratoren', default => 'bacula'},
+    mode    => $operatingsystem ? { windows => '0777', default => '0750'},
     purge   => $manage_config_dir,
     force   => $manage_config_dir,
     recurse => $manage_config_dir,
@@ -115,44 +126,64 @@ class bacula::common (
     require => Package[$require_package],
   }
 
-  # This is necessary to prevent the object above from deleting the supplied scripts
+# This is necessary to prevent the object above from deleting the supplied scripts
   file { '/etc/bacula/scripts':
+    name    => $operatingsystem ? {
+      windows  => 'C:/ProgramData/bacula/scripts',
+      default  => '/etc/bacula/scripts',
+    },
     ensure  => directory,
-    owner   => 'bacula',
-    group   => 'bacula',
+    owner   => $operatingsystem ? { windows => 'Administratoren', default => 'bacula'},
+    group   => $operatingsystem ? { windows => 'Administratoren', default => 'bacula'},
     require => Package[$require_package],
   }
 
-  file { '/var/lib/bacula':
+ file { '/var/lib/bacula':
+    name    => $operatingsystem ? {
+      windows  => 'C:/ProgramData/bacula/lib',
+      default  => '/var/lib/bacula',
+    },
     ensure  => directory,
-    owner   => 'bacula',
-    group   => 'bacula',
-    mode    => '0755',
+    owner   => $operatingsystem ? { windows => 'Administratoren', default => 'bacula'},
+    group   => $operatingsystem ? { windows => 'Administratoren', default => 'bacula'},
+    mode    => $operatingsystem ? { windows => '0775', default => '0755'},
     require => Package[$require_package],
   }
 
   file { '/var/spool/bacula':
+    name    => $operatingsystem ? {
+      windows  => 'C:/ProgramData/bacula/spool',
+      default  => '/var/spool/bacula',
+    },
     ensure  => directory,
-    owner   => 'bacula',
-    group   => 'bacula',
-    mode    => '0755',
+    owner   => $operatingsystem ? { windows => 'Administratoren', default => 'bacula'},
+    group   => $operatingsystem ? { windows => 'Administratoren', default => 'bacula'},
+    mode    => $operatingsystem ? { windows => '0775', default => '0755'},
     require => Package[$require_package],
   }
 
   file { '/var/log/bacula':
+    name    => $operatingsystem ? {
+      windows  => 'C:/ProgramData/bacula/log',
+      default  => '/var/log/bacula',
+    },
     ensure  => directory,
     recurse => true,
-    owner   => 'bacula',
-    group   => 'bacula',
-    mode    => '0755',
+    owner   => $operatingsystem ? { windows => 'Administratoren', default => 'bacula'},
+    group   => $operatingsystem ? { windows => 'Administratoren', default => 'bacula'},
+    mode    => $operatingsystem ? { windows => '0775', default => '0755'},
     require => Package[$require_package],
   }
 
   file { '/var/run/bacula':
+    name    => $operatingsystem ? {
+      windows  => 'C:/ProgramData/bacula/run',
+      default  => '/var/run/bacula',
+    },
     ensure  => directory,
-    owner   => 'bacula',
-    group   => 'bacula',
-    mode    => '0755',
+    owner   => $operatingsystem ? { windows => 'Administratoren', default => 'bacula'},
+    group   => $operatingsystem ? { windows => 'Administratoren', default => 'bacula'},
+    mode    => $operatingsystem ? { windows => '0775', default => '0755'},
     require => Package[$require_package],
   }
 }
