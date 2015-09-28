@@ -6,9 +6,14 @@ FileSet {
       Compression = GZIP
     }
 
+<% if @include_files.kind_of? Array -%>
 <% include_files.each do |file_include| -%>
     File = <%= file_include %>
 <% end -%>
+<% else -%>
+    File = <%= include_files %>
+<% end -%>
+
   }
 
 <% if @exclude_files -%>
