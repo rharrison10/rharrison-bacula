@@ -39,6 +39,7 @@ class bacula::director (
   $dir_template          = 'bacula/bacula-dir.conf.erb',
   $director_password     = '',
   $director_server       = undef,
+  $mail_command          = $::bacula::params::mail_command,
   $mail_to               = undef,
   $mail_to_daemon        = undef,
   $mail_to_on_error      = undef,
@@ -47,6 +48,7 @@ class bacula::director (
   $manage_db             = false,
   $manage_db_tables      = true,
   $manage_logwatch       = undef,
+  $operator_command      = $::bacula::params::operator_command,
   $plugin_dir            = undef,
   $storage_server        = undef,
   $tls_allowed_cn        = [],
@@ -58,6 +60,8 @@ class bacula::director (
   $tls_verify_peer       = 'yes',
   $use_console           = false,
   $use_tls               = false,
+  $use_vol_purge_script  = false,
+  $use_vol_purge_mvdir   = undef,
   $volume_autoprune      = 'Yes',
   $volume_autoprune_diff = 'Yes',
   $volume_autoprune_full = 'Yes',
@@ -66,8 +70,8 @@ class bacula::director (
   $volume_retention_diff = '40 Days',
   $volume_retention_full = '1 Year',
   $volume_retention_incr = '10 Days'
-) {
-  include ::bacula::params
+) inherits ::bacula::params {
+
 
   $scripts_dir = $::bacula::params::scripts_dir
   $catalog_dir = $::bacula::params::catalog_dir
@@ -178,6 +182,25 @@ class bacula::director (
       '/var/run/bacula',
       $plugin_dir
     ],
+  }
+
+  $purge_script_ensure = $use_vol_purge_script ? {
+    true    => file,
+    default => absent,
+  }
+
+  file { '/usr/local/bin/bacula-prune-all-volumes.sh':
+    ensure  => $purge_script_ensure,
+    owner   => 'bacula',
+    group   => 'bacula',
+    mode    => '0750',
+    content => template('bacula/bacula-prune-all-volumes.sh.erb'),
+    before  => File['/etc/bacula/bacula-dir.conf'],
+  }
+
+  $purge_script_command = $use_vol_purge_mvdir ? {
+    undef   => "/usr/local/bin/bacula-prune-all-volumes.sh -s ${::bacula::storage_default_mount}/default",
+    default => "/usr/local/bin/bacula-prune-all-volumes.sh -s ${::bacula::storage_default_mount}/default -m ${use_vol_purge_mvdir}",
   }
 
   file { '/etc/bacula/bacula-dir.conf':

@@ -45,6 +45,8 @@
 #   Whether the node should be a storage server
 # [*logwatch_enabled*]
 #   If <tt>manage_logwatch</tt> is <tt>true</tt> should the Bacula logwatch configuration be enabled or disabled
+# [*mail_command*]
+#   The {command}[http://www.bacula.org/5.0.x-manuals/en/main/main/Messages_Resource.html#12970] bacula will use to send mail. Defaults to <code>"/usr/sbin/bsmtp -h localhost -f bacula@${::fqdn} -s \"Bacula %t %e (for %c)\" %r"</code>.
 # [*mail_to*]
 #   Send the message to this email address for all jobs. Will default to <code>root@${::fqdn}</code> if it and
 #   <code>mail_to_on_error</code> are left undefined.
@@ -69,6 +71,8 @@
 #   Whether to create the DB tables during install
 # [*manage_logwatch*]
 #   Whether to configure {logwatch}[http://www.logwatch.org/] on the director
+# [*operator_command*]
+#   The {command}[http://www.bacula.org/5.0.x-manuals/en/main/main/Messages_Resource.html#12997] bacula will use to send mail for Operator messages. Defaults to <code>"/usr/sbin/bsmtp -h localhost -f bacula@${::fqdn} -s \"Bacula Intervention Required (for %c)\" %r"</code>.
 # [*plugin_dir*]
 #   The directory Bacula plugins are stored in. Use this parameter if you are providing Bacula plugins for use. Only use if the package in the distro repositories supports plugins or you have included a respository with a newer Bacula packaged for your distro. If this is anything other than `undef` and you are not providing any plugins in this directory Bacula will throw an error every time it starts even if the package supports plugins.
 # [*storage_default_mount*]
@@ -114,6 +118,13 @@
 # [*use_tls*]
 #   Whether to use {Bacula TLS - Communications
 #   Encryption}[http://www.bacula.org/en/dev-manual/main/main/Bacula_TLS_Communications.html].
+# [*use_vol_purge_script*]
+#   Run a script to automatically clean up old volumes from the default file pool after the BackupCatalog job is run each day. It
+#   is only valid if the Director and the Storage daemon are running on the same host. <tt>true</tt> or <tt>false</tt> (default).
+# [*use_vol_purge_mvdir*]
+#   The volume purge script can move volume files to a side directory for further inspection instead of removing the volume files.
+#   Bacula has a tendency (at least as of version 5.0.x) to occasionally label volume files incorrectly or store jobs in a volume
+#   labeled differently than the job name. Takes an absolute file file path to a directory or <tt>undef</tt> the default.
 # [*volume_autoprune*]
 #   {Auto prune volumes}[http://www.bacula.org/5.0.x-manuals/en/main/main/Configuring_Director.html#AutoPrune] in
 #   the default pool.
@@ -202,6 +213,7 @@ class bacula (
   $is_director           = false,
   $is_storage            = false,
   $logwatch_enabled      = true,
+  $mail_command          = $::bacula::params::mail_command,
   $mail_to               = undef,
   $mail_to_daemon        = undef,
   $mail_to_on_error      = undef,
@@ -212,6 +224,7 @@ class bacula (
   $manage_db             = false,
   $manage_db_tables      = true,
   $manage_logwatch       = undef,
+  $operator_command      = $::bacula::params::operator_command,
   $plugin_dir            = undef,
   $storage_default_mount = '/mnt/bacula',
   $storage_server        = undef,
@@ -225,6 +238,8 @@ class bacula (
   $tls_verify_peer       = 'yes',
   $use_console           = false,
   $use_tls               = false,
+  $use_vol_purge_script  = false,
+  $use_vol_purge_mvdir   = undef,
   $volume_autoprune      = 'Yes',
   $volume_autoprune_diff = 'Yes',
   $volume_autoprune_full = 'Yes',
@@ -233,8 +248,7 @@ class bacula (
   $volume_retention_diff = '40 Days',
   $volume_retention_full = '1 Year',
   $volume_retention_incr = '10 Days'
-) {
-  include ::bacula::params
+) inherits ::bacula::params {
 
   $director_server_real = $director_server ? {
     undef   => $::bacula::params::director_server_default,
@@ -293,6 +307,8 @@ class bacula (
     tls_verify_peer       => $tls_verify_peer,
     use_console           => $use_console,
     use_tls               => $use_tls,
+    use_vol_purge_script  => $use_vol_purge_script,
+    use_vol_purge_mvdir   => $use_vol_purge_mvdir,
     volume_autoprune      => $volume_autoprune,
     volume_autoprune_diff => $volume_autoprune_diff,
     volume_autoprune_full => $volume_autoprune_full,
@@ -331,6 +347,7 @@ class bacula (
       dir_template          => $director_template,
       director_password     => $director_password,
       director_server       => $director_server_real,
+      mail_command          => $mail_command,
       mail_to               => $mail_to,
       mail_to_daemon        => $mail_to_daemon,
       mail_to_on_error      => $mail_to_on_error,
@@ -339,6 +356,7 @@ class bacula (
       manage_db             => $manage_db,
       manage_db_tables      => $manage_db_tables,
       manage_logwatch       => $manage_logwatch_real,
+      operator_command      => $operator_command,
       plugin_dir            => $plugin_dir,
       storage_server        => $storage_server_real,
       tls_allowed_cn        => $tls_allowed_cn,
@@ -350,6 +368,8 @@ class bacula (
       tls_verify_peer       => $tls_verify_peer,
       use_console           => $use_console,
       use_tls               => $use_tls,
+      use_vol_purge_script  => $use_vol_purge_script,
+      use_vol_purge_mvdir   => $use_vol_purge_mvdir,
       volume_autoprune      => $volume_autoprune,
       volume_autoprune_diff => $volume_autoprune_diff,
       volume_autoprune_full => $volume_autoprune_full,
