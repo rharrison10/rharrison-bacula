@@ -193,7 +193,7 @@ define bacula::client::config (
   }
 
   if $run_scripts {
-    case type($run_scripts) {
+    case type3x($run_scripts) {
       'array' : {
         # TODO figure out how to validate each item in the array is a hash.
         $run_scripts_real = $run_scripts
