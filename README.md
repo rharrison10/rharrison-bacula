@@ -133,6 +133,13 @@ Whether the node should be a storage server
 If `manage_logwatch` is `true` should the Bacula logwatch configuration be
 enabled or disabled
 
+### mail_command
+
+The [command](http://www.bacula.org/5.0.x-manuals/en/main/main/Messages_Resource.html#12970)
+bacula will use to send mail.
+
+Defaults to `"/usr/sbin/bsmtp -h localhost -f bacula@${::fqdn} -s \"Bacula %t %e (for %c)\" %r"`.
+
 ### mail_to
 
 Send the message to this email address for all jobs. Will default to
@@ -178,6 +185,13 @@ Defaults to `true`.
 ### manage_logwatch
 
 Whether to configure [logwatch](http://www.logwatch.org/) on the director
+
+### operator_command
+
+The [command](http://www.bacula.org/5.0.x-manuals/en/main/main/Messages_Resource.html#12997)
+bacula will use to send mail for Operator messages.
+
+Defaults to `"/usr/sbin/bsmtp -h localhost -f bacula@${::fqdn} -s \"Bacula Intervention Required (for %c)\" %r"`.
 
 ### plugin_dir
 
@@ -261,6 +275,20 @@ Whether to configure a console resource on the director
 ### use_tls
 
 Whether to use [Bacula TLS - Communications Encryption](http://www.bacula.org/en/dev-manual/main/main/Bacula_TLS_Communications.html).
+
+### use_vol_purge_script
+
+Run a script to automatically clean up old volumes from the default file pool
+after the BackupCatalog job is run each day. It is only valid if the Director
+and the Storage daemon are running on the same host. `true` or `false` (default).
+
+### use_vol_purge_mvdir
+
+The volume purge script can move volume files to a side directory for further
+inspection instead of removing the volume files. Bacula has a tendency (at
+least as of version 5.0.x) to occasionally label volume files incorrectly or
+store jobs in a volume labeled differently than the job name. Takes an absolute
+file file path to a directory or `undef` the default.
 
 ### volume_autoprune
 
@@ -350,6 +378,16 @@ parameter on the director node. Each will need to know the parameters of the
 
 ## `bacula::client::config` Parameters
 
+### ensure
+
+If the configuration should be deployed to the director. `file` (default),
+`present`, or `absent`.
+
+### backup_enable
+
+If the backup job for the client should be enabled `'yes'` (default)
+or `'no'`.
+
 ### client_schedule
 
 The schedule for backups to be performed.
@@ -390,6 +428,18 @@ The pool to use for incremental backups. Setting this to `false` will prevent
 configuring a specific pool for incremental backups. Defaults to
 `"${pool}.incremental"`.
 
+### priority
+
+This directive permits you to control the order in which your jobs will be run
+by specifying a positive non-zero number. The higher the number, the lower the
+job priority. Assuming you are not running concurrent jobs, all queued jobs of
+priority `1` will run before queued jobs of priority `2` and so on, regardless
+of the original scheduling order.  The priority only affects waiting jobs that
+are queued to run, not jobs that are already running. If one or more jobs of
+priority `2` are already running, and a new job is scheduled with priority `1`,
+the currently running priority `2` jobs must complete before the priority 1 job
+is run, unless `Allow Mixed Priority` is set. The default priority is `10`.
+
 ### rerun_failed_levels
 
 If this directive is set to `'yes'` (default `'no'`), and Bacula detects that a
@@ -405,6 +455,11 @@ normally, which includes any running job of the same name (you need to ensure
 that two jobs of the same name do not run simultaneously); secondly, the
 `Ignore FileSet Changes` directive is not considered when checking for failed
 levels, which means that any FileSet change will trigger a rerun.
+
+### restore_enable
+
+If the restore job for the client should be enabled `'yes'` (default)
+or `'no'`.
 
 ### restore_where
 

@@ -4,6 +4,11 @@
 #
 # === Parameters
 #
+# [*ensure*]
+#   If the configuration should be deployed to the director. <code>file</code> (default), <code>present</code>, or
+#   <code>absent</code>.
+# [*backup_enable*]
+#   If the backup job for the client should be enabled <code>'yes'</code> (default) or <code>'no'</code>.
 # [*client_schedule*]
 #   The schedule for backups to be performed.
 # [*db_backend*]
@@ -25,6 +30,14 @@
 # [*pool_incr*]
 #   The pool to use for incremental backups. Setting this to <code>false</code> will prevent configuring a specific pool for
 #   incremental backups. Defaults to <code>"${pool}.incremental"</code>.
+# [*priority*]
+#   This directive permits you to control the order in which your jobs will be run by specifying a positive non-zero number. The
+#   higher the number, the lower the job priority. Assuming you are not running concurrent jobs, all queued jobs of priority
+#   <code>1</code> will run before queued jobs of priority <code>2</code> and so on, regardless of the original scheduling order.
+#   The priority only affects waiting jobs that are queued to run, not jobs that are already running. If one or more jobs of
+#   priority <code>2</code> are already running, and a new job is scheduled with priority <code>1</code>, the currently running
+#   priority <code>2</code> jobs must complete before the priority <code>1</code> job is run, unless <code>Allow Mixed
+#   Priority</code> is set. The default priority is <code>10</code>.
 # [*rerun_failed_levels*]
 #   If this directive is set to <code>'yes'</code> (default <code>'no'</code>), and Bacula detects that a previous job at a higher
 #   level (i.e. Full or Differential) has failed, the current job level will be upgraded to the higher level. This is particularly
@@ -33,13 +46,15 @@
 #   this directive: first, a failed job is defined as one that has not terminated normally, which includes any running job of the
 #   same name (you need to ensure that two jobs of the same name do not run simultaneously); secondly, the Ignore FileSet Changes
 #   directive is not considered when checking for failed levels, which means that any FileSet change will trigger a rerun.
+# [*restore_enable*]
+#   If the restore job for the client should be enabled <code>'yes'</code> (default) or <code>'no'</code>.
 # [*restore_where*]
 #   The default path to restore files to defined in the restore job for this client.
 # [*run_scripts*]
 #   An array of hashes containing the parameters for any
 #   {RunScripts}[http://www.bacula.org/5.0.x-manuals/en/main/main/Configuring_Director.html#6971] to include in the backup job
-#   definition. For each hash in the array a <code>RunScript</code> directive block will be inserted with the <code>key = value</code>
-#   settings from the hash.  Note: The <code>RunsWhen</code> key is required.
+#   definition. For each hash in the array a <code>RunScript</code> directive block will be inserted with the
+#   <code>key = value</code> settings from the hash.  Note: The <code>RunsWhen</code> key is required.
 # [*storage_server*]
 #   The storage server hosting the pool this client will backup to
 # [*tls_ca_cert*]
@@ -49,8 +64,8 @@
 # [*tls_ca_cert_dir*]
 #   Full path to TLS CA certificate directory. In the current implementation, certificates must be stored PEM
 #   encoded with OpenSSL-compatible hashes, which is the subject name's hash and an extension of .0. One of
-#   <code>TLS CA Certificate File</code> or <code>TLS CA Certificate Dir</code> are required in a server context if <code>TLS Verify Peer</code>
-#   is also specified, and are always required in a client context.
+#   <code>TLS CA Certificate File</code> or <code>TLS CA Certificate Dir</code> are required in a server context if
+#   <code>TLS Verify Peer</code> is also specified, and are always required in a client context.
 # [*use_tls*]
 #   Whether to use {Bacula TLS - Communications
 #   Encryption}[http://www.bacula.org/en/dev-manual/main/main/Bacula_TLS_Communications.html].
@@ -69,7 +84,7 @@
 #
 # === Copyright
 #
-# Copyright 2012 Russell Harrison
+# Copyright 2012-2013 Russell Harrison
 #
 # === License
 #
@@ -86,6 +101,8 @@
 # limitations under the License.
 #
 define bacula::client::config (
+  $ensure              = file,
+  $backup_enable       = 'yes',
   $client_schedule     = 'WeeklyCycle',
   $db_backend          = undef,
   $director_password   = '',
@@ -95,20 +112,24 @@ define bacula::client::config (
   $pool_diff           = undef,
   $pool_full           = undef,
   $pool_incr           = undef,
+  $priority            = undef,
   $rerun_failed_levels = 'no',
+  $restore_enable      = 'yes',
   $restore_where       = '/var/tmp/bacula-restores',
   $run_scripts         = undef,
   $storage_server      = undef,
   $tls_ca_cert         = undef,
   $tls_ca_cert_dir     = undef,
   $tls_require         = 'yes',
-  $use_tls             = false
+  $use_tls             = false,
 ) {
   include ::bacula::params
 
   if !is_domain_name($name) {
     fail "Name for client ${name} must be a fully qualified domain name"
   }
+
+  validate_re($backup_enable, '^(yes|Yes|no|No)$')
 
   case $db_backend {
     undef   : {
@@ -149,7 +170,7 @@ define bacula::client::config (
   if !is_domain_name($director_server_real) {
     fail "director_server=${director_server_real} must be a fully qualified domain name"
   }
-
+  validate_re($restore_enable, '^(yes|Yes|no|No)$')
   validate_absolute_path($restore_where)
 
   $pool_diff_real = $pool_diff ? {
@@ -203,7 +224,7 @@ define bacula::client::config (
   }
 
   file { "/etc/bacula/bacula-dir.d/${name}.conf":
-    ensure  => file,
+    ensure  => $ensure,
     owner   => 'bacula',
     group   => 'bacula',
     mode    => '0640',
