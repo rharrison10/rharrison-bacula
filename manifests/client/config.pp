@@ -104,6 +104,7 @@ define bacula::client::config (
   $ensure              = file,
   $backup_enable       = 'yes',
   $client_schedule     = 'WeeklyCycle',
+  $jobdefs             = undef,
   $db_backend          = undef,
   $director_password   = '',
   $director_server     = undef,

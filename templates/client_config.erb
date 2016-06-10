@@ -23,6 +23,9 @@ Job {
   Client   = "<%= @name %>"
   Type     = Backup
   Enabled  = "<%= @backup_enable %>"
+<% if @jobdefs -%>
+  JobDefs = "DefaultJob"
+<%- end -%>
 <%- if @priority -%>
   Priority = <%= @priority %>
 <%- end -%>
