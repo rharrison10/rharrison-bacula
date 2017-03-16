@@ -49,6 +49,20 @@ class bacula::common (
 ) {
   include ::bacula::params
 
+  if $::operatingsystem == 'openSUSE' {
+    zypprepo { 'home_Ximi1970_openSUSE_Extra':
+      baseurl      => 'http://download.opensuse.org/repositories/home:/Ximi1970:/openSUSE:/Extra/openSUSE_Tumbleweed',
+      enabled      => 1,
+      autorefresh  => 1,
+      name         => 'home_Ximi1970_openSUSE_Extra',
+      gpgcheck     => 1,
+      gpgkey       => 'http://download.opensuse.org/repositories/home:/Ximi1970:/openSUSE:/Extra/openSUSE_Tumbleweed//repodata/repomd.xml.key',
+      priority     => 99,
+      keeppackages => 1,
+      type         => 'rpm-md',
+    }
+  }
+
   if $packages {
     $packages_notify = $manage_db_tables ? {
       true    => Exec['make_db_tables'],
@@ -66,7 +80,7 @@ class bacula::common (
   # To work around the issue where every package resource is a separate run of
   # yum we add requires for the packages we already have to the group resource.
   if $is_client {
-    $require_package = 'bacula-client'
+    $require_package = $::bacula::client::client_package
   } elsif $is_director {
     $require_package = $::bacula::director::db_package
   } elsif $is_storage {
