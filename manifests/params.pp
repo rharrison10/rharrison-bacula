@@ -13,6 +13,7 @@
 # === Copyright
 #
 # Copyright 2012 Russell Harrison
+# Copyright 2017 Dart Container
 #
 # === License
 #
@@ -31,47 +32,78 @@
 class bacula::params {
   $bat_console_package         = $::operatingsystem ? {
     /(Debian|Ubuntu)/ => 'bacula-console-qt',
+    'openSUSE'        => 'bacula-console-bat',
     default           => 'bacula-console-bat',
   }
+
   $console_package             = 'bacula-console'
-  $director_mysql_package      = 'bacula-director-mysql'
+
+  $director_mysql_package      = $::operatingsystem ? {
+    /(Debian|Ubuntu)/ => 'bacula-director-mysql',
+    /(CentOS|Fedora)/ => 'bacula-director',
+    'openSUSE'        => 'bacula-mysql',
+  }
+
   $director_postgresql_package = $::operatingsystem ? {
     /(Debian|Ubuntu)/ => 'bacula-director-pgsql',
+    /(CentOS|Fedora)/ => 'bacula-director',
+    'openSUSE'        => 'bacula-postgresql',
     default           => 'bacula-director-postgresql',
   }
+
   $director_server_default     = "bacula.${::domain}"
-  $director_service            = $::operatingsystem ? {
+
+  $director_service = $::operatingsystem ? {
     /(Debian|Ubuntu)/ => 'bacula-director',
     default           => 'bacula-dir',
   }
-  $director_sqlite_package     = 'bacula-director-sqlite'
+
+  $director_sqlite_package = $::operatingsystem ? {
+    /(Debian|Ubuntu)/ => 'bacula-director-sqlite',
+    /(CentOS|Fedora)/ => 'bacula-director',
+    'openSUSE'        => 'bacula-sqlite3',
+  }
+
   $lib    = $::architecture ? {
     x86_64  => 'lib64',
     default => 'lib',
   }
+
   $libdir = $::operatingsystem ? {
     /(Debian|Ubuntu)/ => '/usr/lib',
     default           => "/usr/${lib}",
   }
+
   $mail_command    = "/usr/sbin/bsmtp -h localhost -f bacula@${::fqdn} -s \\\"Bacula %t %e (for %c)\\\" %r"
   $mail_to_default = "root@${::fqdn}"
+
   $manage_logwatch = $::operatingsystem ? {
     /(Debian|Ubuntu)/ => false,
+    /(CentOS|Fedora|openSUSE)/ => false,
     default           => true,
   }
+
   $operator_command    = "/usr/sbin/bsmtp -h localhost -f bacula@${::fqdn} -s \\\"Bacula Intervention Required (for %c)\\\" %r"
-  $plugin_dir           = "${libdir}/bacula"
+  $plugin_dir           = "{libdir}/bacula"
+
   $storage_mysql_package       = $::operatingsystem ? {
     /(Debian|Ubuntu)/ => 'bacula-sd-mysql',
+    /(CentOS|Fedora|openSUSE)/ => 'bacula-storage',
     default           => 'bacula-storage-mysql',
   }
+
   $storage_postgresql_package  = $::operatingsystem ? {
     /(Debian|Ubuntu)/ => 'bacula-sd-pgsql',
+    /(CentOS|Fedora|openSUSE)/ => 'bacula-storage',
     default           => 'bacula-storage-postgresql',
   }
+
   $storage_server_default      = "bacula.${::domain}"
+
   $storage_sqlite_package = $::operatingsystem ? {
     /(Debian|Ubuntu)/ => 'bacula-sd-sqlite',
+    /(CentOS|Fedora|openSUSE)/ => 'bacula-storage',
     default           => 'bacula-storage-sqlite',
   }
+
 }

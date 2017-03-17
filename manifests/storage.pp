@@ -17,6 +17,7 @@
 # === Copyright
 #
 # Copyright 2012 Russell Harrison
+# Copyright 2017 Dart Container
 #
 # === License
 #
@@ -48,7 +49,8 @@ class bacula::storage (
   $tls_key               = undef,
   $tls_require           = 'yes',
   $tls_verify_peer       = 'yes',
-  $use_tls               = false
+  $use_tls               = false,
+  $block_checksum        = 'Yes'
 ) {
   include ::bacula::params
 
@@ -107,26 +109,25 @@ class bacula::storage (
     undef   => File[
       '/etc/bacula/bacula-sd.d/empty.conf',
       "${storage_default_mount}/default",
-      '/var/lib/bacula',
-      '/var/run/bacula'
+      '/var/lib/bacula'
     ],
     default => File[
       '/etc/bacula/bacula-sd.d/empty.conf',
       "${storage_default_mount}/default",
       '/var/lib/bacula',
-      '/var/run/bacula',
       $plugin_dir
     ],
   }
 
   file { '/etc/bacula/bacula-sd.conf':
-    ensure  => file,
-    owner   => 'bacula',
-    group   => 'bacula',
-    mode    => '0640',
-    content => template($storage_template),
-    require => $file_requires,
-    notify  => Service['bacula-sd'],
+    ensure    => file,
+    owner     => 'bacula',
+    group     => 'bacula',
+    mode      => '0640',
+    content   => template($storage_template),
+    require   => $file_requires,
+    notify    => Service['bacula-sd'],
+    show_diff => false,
   }
 
   # Register the Service so we can manage it through Puppet

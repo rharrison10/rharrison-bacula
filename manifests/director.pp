@@ -33,7 +33,7 @@ class bacula::director (
   $db_database           = 'bacula',
   $db_host               = 'localhost',
   $db_password           = '',
-  $db_port               = '3306',
+  $db_port               = undef,
   $db_user               = '',
   $db_user_host          = undef,
   $dir_template          = 'bacula/bacula-dir.conf.erb',
@@ -66,6 +66,8 @@ class bacula::director (
   $volume_autoprune_diff = 'Yes',
   $volume_autoprune_full = 'Yes',
   $volume_autoprune_incr = 'Yes',
+  $volume_max_bytes      = '10G',
+  $volume_max_volumes    = '2000',
   $volume_retention      = '1 Year',
   $volume_retention_diff = '40 Days',
   $volume_retention_full = '1 Year',
@@ -128,6 +130,15 @@ class bacula::director (
     default      => $::bacula::params::director_sqlite_package,
   }
 
+  $db_port_real = $db_port ? {
+    undef => $db_backend ? {
+      'mysql'      => '3306',
+      'postgresql' => '5432',
+      default      => '',
+    },
+    default => $db_port,
+  }
+
   package { $db_package:
     ensure => present,
   }
@@ -168,7 +179,6 @@ class bacula::director (
       '/var/lib/bacula',
       '/var/log/bacula',
       '/var/spool/bacula',
-      '/var/run/bacula'
     ],
     default => File[
       '/etc/bacula/bacula-dir.d',
@@ -176,7 +186,6 @@ class bacula::director (
       '/var/lib/bacula',
       '/var/log/bacula',
       '/var/spool/bacula',
-      '/var/run/bacula',
       $plugin_dir
     ],
   }
@@ -201,14 +210,15 @@ class bacula::director (
   }
 
   file { '/etc/bacula/bacula-dir.conf':
-    ensure  => file,
-    owner   => 'bacula',
-    group   => 'bacula',
-    mode    => '0640',
-    content => template($dir_template),
-    require => $file_requires,
-    before  => Service['bacula-dir'],
-    notify  => Exec['bacula-dir reload'],
+    ensure    => file,
+    owner     => 'bacula',
+    group     => 'bacula',
+    mode      => '0640',
+    content   => template($dir_template),
+    require   => $file_requires,
+    before    => Service['bacula-dir'],
+    notify    => Exec['bacula-dir reload'],
+    show_diff => false,
   }
 
   if $backup_catalog {
@@ -222,7 +232,18 @@ class bacula::director (
           db_database  => $db_database,
           db_user      => $db_user,
           db_password  => $db_password,
-          db_port      => $db_port,
+          db_port      => $db_port_real,
+          db_host      => $db_host,
+          db_user_host => $db_user_host,
+          manage_db    => $manage_db,
+        }
+      }
+      'postgresql' : {
+        class { '::bacula::director::postgresql':
+          db_database  => $db_database,
+          db_user      => $db_user,
+          db_password  => $db_password,
+          db_port      => $db_port_real,
           db_host      => $db_host,
           db_user_host => $db_user_host,
           manage_db    => $manage_db,
