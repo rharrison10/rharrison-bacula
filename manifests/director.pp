@@ -62,6 +62,7 @@ class bacula::director (
   $use_tls               = false,
   $use_vol_purge_script  = false,
   $use_vol_purge_mvdir   = undef,
+  $volume_recycle        = 'No',
   $volume_autoprune      = 'Yes',
   $volume_autoprune_diff = 'Yes',
   $volume_autoprune_full = 'Yes',
@@ -72,6 +73,9 @@ class bacula::director (
   $volume_retention_incr = '10 Days'
 ) inherits ::bacula::params {
 
+
+  $scripts_dir = $::bacula::params::scripts_dir
+  $catalog_dir = $::bacula::params::catalog_dir
 
   $director_server_real = $director_server ? {
     undef   => $::bacula::params::director_server_default,
@@ -258,10 +262,15 @@ class bacula::director (
     require    => $service_require,
   }
 
+  $bconsole_cmd = $::osfamily ? {
+    'Debian' => '/usr/bin/bconsole',
+    default  => '/usr/sbin/bconsole',
+  }
+
   # Instead of restarting the <code>bacula-dir</code> service which could interrupt running jobs tell the director to reload its
   # configuration.
   exec { 'bacula-dir reload':
-    command     => '/bin/echo reload | /usr/sbin/bconsole',
+    command     => "/bin/echo reload | ${bconsole_cmd}",
     logoutput   => on_failure,
     refreshonly => true,
     timeout     => 10,
@@ -270,4 +279,13 @@ class bacula::director (
       Service['bacula-dir'],
     ],
   }
+
+
+  concat { "/etc/bacula/bacula-dir.d/pools.conf":
+    owner  => 'bacula',
+    group  => 'tape',
+    mode   => '0644',
+  }
+
+
 }

@@ -4,8 +4,9 @@ Client {
   Password = "<%= @director_password_real %>"
   Catalog  = "<%= @director_server_real %>:<%= @db_backend_real %>"
   File Retention = 6 Weeks
-  Job Retention  = 1 Year
+  Job Retention  = 6 Weeks
   Auto Prune = Yes
+  Maximum Concurrent Jobs = 20    
 <% if @use_tls -%>
   TLS Enable = Yes
   TLS Require = <%= @tls_require %>
@@ -23,24 +24,30 @@ Job {
   Client   = "<%= @name %>"
   Type     = Backup
   Enabled  = "<%= @backup_enable %>"
+<% if @jobdefs -%>
+  JobDefs = "DefaultJob"
+<%- end -%>
 <%- if @priority -%>
   Priority = <%= @priority %>
 <%- end -%>
   FileSet  = "<%= @fileset %>"
-  Storage  = "<%= @storage_server_real %>:storage:<%= @pool %>"
+  Storage  = "<%= @storage_server_real %>:storage:default"
   Schedule = "<%= @client_schedule %>"
-  Pool     = "<%= @storage_server_real %>:pool:<%= @pool %>"
+  Pool     = "<%= @pool %>"
   <%- if @pool_full_real -%>
-  Full Backup Pool = "<%= @storage_server_real %>:pool:<%= @pool_full_real %>"
+  Full Backup Pool = "<%= @pool_full_real %>"
   <%- end -%>
   <%- if @pool_incr_real -%>
-  Incremental Backup Pool = "<%= @storage_server_real %>:pool:<%= @pool_incr_real %>"
+  Incremental Backup Pool = "<%= @pool_incr_real %>"
   <%- end -%>
   <%- if @pool_diff_real -%>
-  Differential Backup Pool = "<%= @storage_server_real %>:pool:<%= @pool_diff_real %>"
+  Differential Backup Pool = "<%= @pool_diff_real %>"
   <%- end -%>
   Messages = "<%= @director_server_real %>:messages:standard"
   Rerun Failed Levels = <%= @rerun_failed_levels %>
+  <%- if @bootstrap -%>
+  Write Bootstrap = "<%= @bootstrap %>"
+  <%- end -%>
 <% if @run_scripts_real -%>
   <%- @run_scripts_real.each do |runscript| -%>
   RunScript {
@@ -74,8 +81,11 @@ Job {
   Type     = Restore
   Enabled  = "<%= @restore_enable %>"
   FileSet  = "<%= @fileset %>"
-  Storage  = "<%= @storage_server_real %>:storage:<%= @pool %>"
-  Pool     = "<%= @storage_server_real %>:pool:<%= @pool %>"
+  Storage  = "<%= @storage_server_real %>:storage:default"
+  Pool     = "<%= @pool %>"
   Messages = "<%= @director_server_real %>:messages:standard"
   Where    = <%= @restore_where %>
+  <%- if @bootstrap -%>
+  Bootstrap = "<%= @bootstrap %>"
+  <%- end -%>
 }

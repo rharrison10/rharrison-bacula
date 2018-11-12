@@ -32,8 +32,8 @@ class bacula::director::mysql (
   $db_port      = '3306',
   $db_user      = '',
   $db_user_host = undef,
-  $manage_db    = false,
-) {
+  $manage_db    = false
+){
   include ::bacula::params
 
   if $manage_db {
@@ -47,7 +47,12 @@ class bacula::director::mysql (
         $db_require = Class['::mysql::server']
       }
     } else {
-      $db_require = undef
+      if defined(Class['percona']) {
+        $db_require = Class['percona']
+        $is_percona = true
+      } else {
+        $db_require = undef
+      }
     }
 
     $db_user_host_real = $db_user_host ? {
@@ -55,26 +60,36 @@ class bacula::director::mysql (
       default => $db_user_host,
     }
 
-    #FIXME Due to a bug in v1.0.0 of the puppetlabs-mysql module I can't use a notify here on the define.
-    mysql::db { $db_database:
-      user     => $db_user,
-      password => $db_password,
-      host     => $db_user_host,
-      grant    => ['all'],
-      require  => $db_require,
-      # notify    => Exec['make_db_tables'],
-      before   => Exec['make_db_tables'],
+    if $is_percona {
+      percona::database { $db_database:
+        ensure   => present,
+        notify   => Exec['make_db_tables'],
+      }
+
+      percona::rights { "${db_user}@${db_user_host}/${db_database}":
+        database  => $db_database,
+        priv      => [ 'all' ],
+        host      => $db_user_host,
+        password  => $db_password,
+      }
+    } else {
+      mysql::db { $db_database:
+        user      => $db_user,
+        password  => $db_password,
+        host      => $db_user_host,
+        grant     => ['all'],
+        require   => $db_require,
+        notify    => Exec['make_db_tables'],
+      }
     }
-    #FIXME Work around a bug in v1.0.0 of the puppetlabs-mysql module that causes the <code>mysql_grant</code> type to notify on
-    # every run by having the <code>mysql_database</code> resource created in the <code>mysql::db</code> define notify
-    # <code>Exec['make_db_tables']</code> instead of using the more flexible notify from the entire define.
-    Mysql_database[$db_database] ~> Exec['make_db_tables']
   }
 
   $make_db_tables_command = $::operatingsystem ? {
-    /(Ubuntu|Debian)/ => '/usr/lib/bacula/make_bacula_tables',
-    default           => '/usr/libexec/bacula/make_mysql_tables',
+    'Debian'  => '/usr/lib/bacula/make_bacula_tables',
+    'Ubuntu' => '/usr/share/bacula-director/make_mysql_tables',
+    default => '/usr/libexec/bacula/make_mysql_tables',
   }
+
   $db_parameters = "--host=${db_host} --user=${db_user} --password=${db_password} --port=${db_port} --database=${db_database}"
 
   exec { 'make_db_tables':

@@ -36,7 +36,7 @@ FileDaemon {
   Plugin Directory = <%= @plugin_dir %>
 <% end -%>
   PID Directory = /var/run/bacula
-  Maximum Concurrent Jobs = 3
+  Maximum Concurrent Jobs = 20
 <% if @use_tls -%>
   TLS Enable = yes
   TLS Require = <%= @tls_require %>

@@ -28,7 +28,8 @@ define bacula::director::custom_config (
   $ensure   = 'file',
   $director_server = undef,
   $content  = undef,
-  $source   = undef
+  $source   = undef,
+  $subdir   = 'bacula-dir.d',
 ) {
   if !($ensure in ['file', 'absent']) {
     fail('The only valid values for the ensure parameter are file or absent')
@@ -40,7 +41,7 @@ define bacula::director::custom_config (
     fail('You must supply either the content or source parameter')
   }
 
-  file { "/etc/bacula/bacula-dir.d/custom-${name}.conf":
+  file { "/etc/bacula/${subdir}/custom-${name}.conf":
     ensure  => file,
     owner   => 'bacula',
     group   => 'bacula',

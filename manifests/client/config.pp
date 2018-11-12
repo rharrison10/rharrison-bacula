@@ -104,6 +104,7 @@ define bacula::client::config (
   $ensure              = file,
   $backup_enable       = 'yes',
   $client_schedule     = 'WeeklyCycle',
+  $jobdefs             = undef,
   $db_backend          = undef,
   $director_password   = '',
   $director_server     = undef,
@@ -122,6 +123,7 @@ define bacula::client::config (
   $tls_ca_cert_dir     = undef,
   $tls_require         = 'yes',
   $use_tls             = false,
+  $bootstrap            = "/var/lib/bacula/${name}.bsr",
 ) {
   include ::bacula::params
 
@@ -193,7 +195,7 @@ define bacula::client::config (
   }
 
   if $run_scripts {
-    case type($run_scripts) {
+    case type3x($run_scripts) {
       'array' : {
         # TODO figure out how to validate each item in the array is a hash.
         $run_scripts_real = $run_scripts
