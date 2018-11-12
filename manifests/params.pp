@@ -49,7 +49,7 @@ class bacula::params {
     x86_64  => 'lib64',
     default => 'lib',
   }
-  $libdir = $::operatingsystem ? {
+  $libdir = $facts['os']['family'] ? {
     /(Debian|Ubuntu)/ => '/usr/lib',
     default           => "/usr/${lib}",
   }

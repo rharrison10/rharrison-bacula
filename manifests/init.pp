@@ -225,7 +225,7 @@ class bacula (
   $manage_db_tables      = true,
   $manage_logwatch       = undef,
   $operator_command      = $::bacula::params::operator_command,
-  $plugin_dir            = undef,
+  $plugin_dir            = $::bacula::params::plugin_dir,
   $storage_default_mount = '/mnt/bacula',
   $storage_server        = undef,
   $storage_template      = undef,
