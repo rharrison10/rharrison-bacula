@@ -13,7 +13,7 @@ Director {
 <% if @plugin_dir -%>
   Plugin Directory = <%= @plugin_dir %>
 <% end -%>
-  Maximum Concurrent Jobs = 5
+  Maximum Concurrent Jobs = 20
   Password = "<%= @director_password -%>"
   Messages = "<%= @director_server_real -%>:messages:daemon"
 <% if @use_tls -%>
@@ -95,6 +95,7 @@ Storage {
   Password = "<%= @director_password -%>"
   Device = "DefaultFileStorage"
   Media Type = File
+  Maximum Concurrent Jobs = 20  
 <% if @use_tls -%>
   TLS Enable = yes
   TLS Require = <%= @tls_require %>
@@ -120,12 +121,13 @@ Pool {
   # theory the same time period for weekly backups from the clients)
   # Note the files for the old volumes will still remain on the disk but will
   # be truncated to a zero size.
-  Recycle = No
+  Recycle = <%= @volume_recycle %>
   Auto Prune = <%= @volume_autoprune %>
   Action On Purge = Truncate
   Volume Retention = <%= @volume_retention %>
   # Don't allow re-use of volumes; one volume per job only
-  Maximum Volume Jobs = 1
+  Maximum Volume Bytes = 100G
+  Maximum Volume Jobs = 20
 }
 Pool {
   Name = "<%= @storage_server_real -%>:pool:default.full"
@@ -137,12 +139,13 @@ Pool {
   # Clean up any we don't need, and keep them for a maximum of a year
   # Note the files for the old volumes will still remain on the disk but will
   # be truncated to a zero size.
-  Recycle = No
+  Recycle = <%= @volume_recycle %>
   Auto Prune = <%= @volume_autoprune_full %>
   Action On Purge = Truncate
   Volume Retention = <%= @volume_retention_full %>
   # Don't allow re-use of volumes; one volume per job only
-  Maximum Volume Jobs = 1
+  Maximum Volume Bytes = 100G
+  Maximum Volume Jobs = 20 
 }
 
 Pool {
@@ -155,12 +158,13 @@ Pool {
   # Clean up any we don't need, and keep them for a maximum of fourty days
   # Note the files for the old volumes will still remain on the disk but will
   # be truncated to a zero size.
-  Recycle = No
+  Recycle = <%= @volume_recycle %>
   Auto Prune = <%= @volume_autoprune_diff %>
   Action On Purge = Truncate
   Volume Retention = <%= @volume_retention_diff %>
   # Don't allow re-use of volumes; one volume per job only
-  Maximum Volume Jobs = 1
+  Maximum Volume Bytes = 100G
+  Maximum Volume Jobs = 20
 }
 
 Pool {
@@ -173,12 +177,13 @@ Pool {
   # Clean up any we don't need, and keep them for a maximum of 40 days
   # Note the files for the old volumes will still remain on the disk but will
   # be truncated to a zero size.
-  Recycle = No
+  Recycle = <%= @volume_recycle %>
   Auto Prune = <%= @volume_autoprune_incr %>
   Action On Purge = Truncate
   Volume Retention = <%= @volume_retention_incr %>
   # Don't allow re-use of volumes; one volume per job only
-  Maximum Volume Jobs = 1
+  Maximum Volume Bytes = 100G
+  Maximum Volume Jobs = 20
 }
 
 Pool {
@@ -195,7 +200,7 @@ Pool {
   # we should keep at least one weeks worth of backups of the database
   Volume Retention = 1 Week
   # Don't allow re-use of volumes; one volume per job only
-  Maximum Volume Jobs = 1
+  Maximum Volume Jobs = 20
 }
 
 # Create a Counter which will be used to label the catalog volumes on the system
@@ -395,6 +400,7 @@ Job {
   # This deletes the copy of the catalog
   RunAfterJob  = "<%= @scripts_dir -%>/delete_catalog_backup"
   Write Bootstrap = "/var/lib/bacula/BackupCatalog.bsr"
+  Maximum Concurrent Jobs = 20
   # Run after main backup
   Priority = 50
 <% if @use_vol_purge_script -%>

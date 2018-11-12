@@ -62,6 +62,7 @@ class bacula::director (
   $use_tls               = false,
   $use_vol_purge_script  = false,
   $use_vol_purge_mvdir   = undef,
+  $volume_recycle        = 'No',
   $volume_autoprune      = 'Yes',
   $volume_autoprune_diff = 'Yes',
   $volume_autoprune_full = 'Yes',
@@ -278,4 +279,13 @@ class bacula::director (
       Service['bacula-dir'],
     ],
   }
+
+
+  concat { "/etc/bacula/bacula-dir.d/pools.conf":
+    owner  => 'bacula',
+    group  => 'tape',
+    mode   => '0644',
+  }
+
+
 }

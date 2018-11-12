@@ -61,6 +61,7 @@ class bacula::params::validate (
   $use_tls               = '',
   $use_vol_purge_script  = false,
   $use_vol_purge_mvdir   = undef,
+  $volume_recycle        = '',
   $volume_autoprune      = '',
   $volume_autoprune_diff = '',
   $volume_autoprune_full = '',
