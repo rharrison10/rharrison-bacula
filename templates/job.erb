@@ -1,0 +1,63 @@
+Job {
+  Name     = "<%= @name %>"
+  Client   = "<%= @client %>"
+  Type     = <%= @type %>
+  Enabled  = "<%= @backup_enable %>"
+<%- if @priority -%>
+  Priority = <%= @priority %>
+<%- end -%>
+  FileSet  = "<%= @fileset %>"
+  Storage  = "<%= @storage_server_real %>:storage:<%= @pool %>"
+<%- if @client_schedule -%>
+  Schedule = "<%= @client_schedule %>"
+<%- end -%>
+  Pool     = "<%= @storage_server_real %>:pool:<%= @pool %>"
+  <%- if @pool_full_real -%>
+  Full Backup Pool = "<%= @storage_server_real %>:pool:<%= @pool_full_real %>"
+  <%- end -%>
+  <%- if @pool_incr_real -%>
+  Incremental Backup Pool = "<%= @storage_server_real %>:pool:<%= @pool_incr_real %>"
+  <%- end -%>
+  <%- if @pool_diff_real -%>
+  Differential Backup Pool = "<%= @storage_server_real %>:pool:<%= @pool_diff_real %>"
+  <%- end -%>
+  Messages = "<%= @director_server_real %>:messages:standard"
+<% if @rerun_failed_levels -%>
+  Rerun Failed Levels = <%= @rerun_failed_levels %>
+<% end -%>
+<% if @bootstrap -%>
+<% if @type == "Backup" -%>
+  Write Bootstrap = "<%= @bootstrap %>"
+<% else -%>
+Bootstrap = "<%= @bootstrap %>"
+<% end -%>
+<% end -%>
+<% if @restore_where -%>
+  Where    = <%= @restore_where %>
+<% end -%>
+<% if @run_scripts_real -%>
+  <%- @run_scripts_real.each do |runscript| -%>
+  RunScript {
+    RunsWhen       = <%= runscript['RunsWhen'] %>
+    <%- if runscript['RunsOnSuccess'] -%>
+    RunsOnSuccess  = <%= runscript['RunsOnSuccess'] %>
+    <%- end -%>
+    <%- if runscript['RunsOnFailure'] -%>
+    RunsOnFailure  = <%= runscript['RunsOnFailure'] %>
+    <%- end -%>
+    <%- if runscript['RunsOnClient'] -%>
+    RunsOnClient   = <%= runscript['RunsOnClient'] %>
+    <%- end -%>
+    <%- if runscript['FailJobOnError'] -%>
+    FailJobOnError = <%= runscript['FailJobOnError'] %>
+    <%- end -%>
+    <%- if runscript['Command'] -%>
+    Command        = "<%= runscript['Command'] %>"
+    <%- end -%>
+    <%- if runscript['Console'] -%>
+    Console        = "<%= runscript['Console'] %>"
+    <%- end -%>
+  }
+  <%- end -%>
+<% end -%>
+}

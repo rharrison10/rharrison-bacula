@@ -1,0 +1,17 @@
+Pool {
+  Name = "<%= @name %>"
+  # All Volumes will have the format director.catalog.date.time to ensure they
+  # are kept unique throughout the operation and also aid quick analysis
+  Label Format = "<%= @fin_label_format%>"
+  Pool Type = <%= @pool_type %>
+  # Clean up any we don't need, and keep them for a maximum of a month (in
+  # theory the same time period for weekly backups from the clients)
+  Recycle = <%= @recycle %>
+  Auto Prune = <%= @auto_prune %>
+  # We have no limit on the number of volumes, but we will simply set that
+  # we should keep at least one weeks worth of backups of the database
+  Volume Retention = <%= @volume_retention %>
+  Maximum Volume Bytes = <%= @max_volume_bytes %>
+  Maximum Volume Jobs = <%= @max_volume_jobs %>
+}
+
